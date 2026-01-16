@@ -246,15 +246,7 @@ export default function POSPage() {
           {!invoiceData ? (
             <POSCart
               cartItems={cartItems}
-              setCartItems={(updater) => {
-                setCartItems((prev) => {
-                  const next = typeof updater === 'function' ? updater(prev) : updater;
-                  return next.map(item => ({
-                    ...item,
-                    category: item.category || 'FRAME'
-                  }));
-                });
-              }}
+              setCartItems={setCartItems}
               discount={discount}
               setDiscount={setDiscount}
             />

@@ -1,0 +1,34 @@
+# Environment Files (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+
+# Production Files
+.next/
+dist/
+build/
+out/
+
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

@@ -501,7 +501,78 @@ npm install
 
 ---
 
-## 📝 Contributing
+## � Deployment
+
+### Production Setup
+
+The application is configured for easy deployment. All frontend-backend communication is now environment-driven.
+
+#### Environment Configuration
+
+1. **Backend Environment** (`.env`)
+   ```bash
+   NODE_ENV=production
+   PORT=5000
+   MONGO_URI=your_mongodb_connection_string
+   FRONTEND_URL=https://yourdomain.com
+   JWT_ACCESS_SECRET=your_secret_key_32_chars
+   JWT_REFRESH_SECRET=your_secret_key_32_chars
+   ```
+
+2. **Frontend Environment** (`.env.local` or `.env.production`)
+   ```bash
+   NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+   ```
+
+#### Key Configuration Files
+
+- **`DEPLOYMENT.md`** - Comprehensive deployment guide with multiple hosting options
+- **`DEPLOYMENT_CHANGES.md`** - Summary of all changes made for deployment
+- **`setup-deployment.bat`** - Automated setup script
+- **`server/.env.example`** - Backend environment template
+- **`my-app/.env.example`** - Frontend environment template
+
+#### Quick Deploy Steps
+
+1. **Prepare Environment Files**
+   ```bash
+   # Create .env files from templates
+   copy server\.env.example server\.env
+   copy my-app\.env.example my-app\.env.local
+   
+   # Edit with your production values
+   ```
+
+2. **Build**
+   ```bash
+   # Backend - no build needed
+   cd server
+   npm install
+   
+   # Frontend
+   cd ../my-app
+   pnpm install
+   pnpm build
+   ```
+
+3. **Deploy**
+   - **Option A**: Using PM2 on VPS
+   - **Option B**: Using Docker
+   - **Option C**: Using Vercel (frontend only)
+   - See `DEPLOYMENT.md` for detailed instructions
+
+#### Deployment Features
+
+- ✅ Dynamic API endpoint configuration
+- ✅ CORS automatically configured based on environment
+- ✅ Production-ready security settings
+- ✅ Token lifecycle management
+- ✅ Environment-based build optimization
+- ✅ SSL/TLS ready with Nginx examples included
+
+---
+
+## �📝 Contributing
 
 1. Create a feature branch: `git checkout -b feature/your-feature`
 2. Commit changes with descriptive messages

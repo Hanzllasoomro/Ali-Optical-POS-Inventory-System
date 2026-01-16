@@ -1,15 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-
-type Product = {
-  _id: string;
-  name: string;
-  sellingPrice: number;
-  stockQty: number;
-};
-
-type CartItem = Product & { qty: number };
+import type { CartItem } from "../types";
 
 interface Props {
   cartItems: CartItem[];

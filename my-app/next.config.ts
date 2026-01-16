@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: [
-    'http://192.168.10.18:3000',
-    'http://localhost:3000',
-  ],
+  // Environment variables are automatically loaded from .env.local or .env.production
+  productionBrowserSourceMaps: false, // Disable source maps in production for security
 };
 
 export default nextConfig;

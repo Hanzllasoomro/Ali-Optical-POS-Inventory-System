@@ -12,6 +12,7 @@ const demoInvoice = {
     date: "2026-01-13",
     deliveryDate: "2026-01-14",
     customer: "Walk-in Customer",
+    color: "#000000",
   },
   payment: {
     subtotal: 8200,
