@@ -1,4 +1,4 @@
-export type Category = "FRAME" | "LENS" | "GLASSES" | "HEARING_AID" | "LENS_WATER" | "ACCESSORY" | "SUNGLASS";
+export type Category = "FRAME" | "LENS" | "GLASSES" | "HEARING_AID" | "LENS_WATER" | "ACCESSORY" | "SUNGLASS" | "EYE_TESTING";
 
 export interface Product {
   _id: string;

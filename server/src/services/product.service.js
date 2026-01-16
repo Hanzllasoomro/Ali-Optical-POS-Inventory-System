@@ -7,6 +7,19 @@ export const addProduct = async (data) => {
   return productRepo.createProduct(data);
 };
 
+export const updateProduct = async (productId, data) => {
+  const product = await productRepo.findProductById(productId);
+  if (!product) throw new Error("Product not found");
+
+  // Check if SKU is being changed and if new SKU already exists
+  if (data.sku && data.sku !== product.sku) {
+    const existing = await productRepo.findProductBySKU(data.sku);
+    if (existing) throw new Error("SKU already exists");
+  }
+
+  return productRepo.updateProduct(productId, data);
+};
+
 export const updateStock = async (productId, qtyChange) => {
   const product = await productRepo.findProductById(productId);
   if (!product) throw new Error("Product not found");

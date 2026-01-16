@@ -25,6 +25,27 @@ export default function ProductsPage() {
     stockQty: 0,
     reorderLevel: 5,
   });
+
+  const handleCategoryChange = (category: string) => {
+    const updates: any = { category };
+    if (category === "EYE_TESTING") {
+      updates.sellingPrice = 250;
+      updates.costPrice = 250;
+    }
+    setNewProduct({ ...newProduct, ...updates });
+  };
+
+  const handleEditCategoryChange = (category: string) => {
+    if (!editingProduct) return;
+    const updates: any = { category };
+    if (category === "EYE_TESTING") {
+      updates.sellingPrice = 250;
+      updates.costPrice = 250;
+    }
+    setEditingProduct({ ...editingProduct, ...updates });
+  };
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -60,8 +81,62 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (_id: string) => {
-    await api.delete(`/products/${_id}`);
-    fetchProducts();
+    if (confirm("Are you sure you want to delete this product?")) {
+      try {
+        await api.delete(`/products/${_id}`);
+        fetchProducts();
+      } catch (err: any) {
+        setError(err?.response?.data?.message || "Failed to delete product");
+      }
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct({ ...product });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!editingProduct) return;
+    
+    // Validate required fields
+    if (!editingProduct.name.trim()) {
+      setError("Product name is required");
+      return;
+    }
+    if (!editingProduct.sku.trim()) {
+      setError("SKU is required");
+      return;
+    }
+    if (editingProduct.sellingPrice <= 0) {
+      setError("Selling price must be greater than 0");
+      return;
+    }
+    if (editingProduct.stockQty < 0) {
+      setError("Stock quantity cannot be negative");
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+    try {
+      await api.put(`/products/${editingProduct._id}`, editingProduct);
+      setIsEditModalOpen(false);
+      setEditingProduct(null);
+      await fetchProducts();
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || err?.message || "Failed to update product";
+      setError(errorMessage);
+      console.error("Update error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditChange = (field: keyof Product, value: any) => {
+    if (editingProduct) {
+      setEditingProduct({ ...editingProduct, [field]: value });
+    }
   };
 
   return (
@@ -104,7 +179,7 @@ export default function ProductsPage() {
           <select
             className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
             value={newProduct.category}
-            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+            onChange={(e) => handleCategoryChange(e.target.value)}
           >
             <option value="FRAME">Frame</option>
             <option value="LENS">Lens</option>
@@ -113,6 +188,7 @@ export default function ProductsPage() {
             <option value="LENS_WATER">Lens Water</option>
             <option value="ACCESSORY">Accessory</option>
             <option value="SUNGLASS">Sun-glasses</option>
+            <option value="EYE_TESTING">Eye Testing</option>
           </select>
         </label>
         <label className="space-y-1">
@@ -197,12 +273,147 @@ export default function ProductsPage() {
               <p className="text-sm text-[--color-muted]">Cost: {p.costPrice} · Price: {p.sellingPrice}</p>
               <p className="text-xs text-[--color-muted]">Stock: {p.stockQty} | Reorder at {p.reorderLevel ?? 5}</p>
             </div>
-            <button onClick={() => handleDelete(p._id)} className="text-red-500 text-sm font-semibold">
-              Delete
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => handleEdit(p)} className="text-[--color-primary] text-sm font-semibold hover:text-[--color-primary-strong]">
+                Edit
+              </button>
+              <button onClick={() => handleDelete(p._id)} className="text-red-500 text-sm font-semibold hover:text-red-600">
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* Edit Product Modal */}
+      {isEditModalOpen && editingProduct && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl border border-[--color-border] shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-[--color-border] p-4 flex justify-between items-center">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-[--color-muted]">Edit Product</p>
+                <h3 className="text-xl font-semibold text-[--foreground]">{editingProduct.name}</h3>
+              </div>
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingProduct(null);
+                }}
+                className="text-[--color-muted] hover:text-[--foreground] text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {error && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="space-y-1">
+                  <span className="text-sm font-medium">Name</span>
+                  <input
+                    type="text"
+                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
+                    value={editingProduct.name}
+                    onChange={(e) => handleEditChange("name", e.target.value)}
+                  />
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-sm font-medium">SKU</span>
+                  <input
+                    type="text"
+                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
+                    value={editingProduct.sku}
+                    onChange={(e) => handleEditChange("sku", e.target.value.toUpperCase())}
+                  />
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-sm font-medium">Category</span>
+                  <select
+                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
+                    value={editingProduct.category}
+                    onChange={(e) => handleEditCategoryChange(e.target.value)}
+                  >
+                    <option value="FRAME">Frame</option>
+                    <option value="LENS">Lens</option>
+                    <option value="GLASSES">Glasses</option>
+                    <option value="HEARING_AID">Hearing Aid</option>
+                    <option value="LENS_WATER">Lens Water</option>
+                    <option value="ACCESSORY">Accessory</option>
+                    <option value="SUNGLASS">Sun-glasses</option>
+                    <option value="EYE_TESTING">Eye Testing</option>
+                  </select>
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-sm font-medium">Cost Price</span>
+                  <input
+                    type="number"
+                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
+                    value={editingProduct.costPrice}
+                    onChange={(e) => handleEditChange("costPrice", +e.target.value)}
+                  />
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-sm font-medium">Selling Price</span>
+                  <input
+                    type="number"
+                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
+                    value={editingProduct.sellingPrice}
+                    onChange={(e) => handleEditChange("sellingPrice", +e.target.value)}
+                  />
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-sm font-medium">Stock Qty</span>
+                  <input
+                    type="number"
+                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
+                    value={editingProduct.stockQty}
+                    onChange={(e) => handleEditChange("stockQty", +e.target.value)}
+                  />
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-sm font-medium">Reorder Level</span>
+                  <input
+                    type="number"
+                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2"
+                    value={editingProduct.reorderLevel ?? 5}
+                    onChange={(e) => handleEditChange("reorderLevel", +e.target.value)}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 border-t border-[--color-border] bg-white p-4 flex gap-2 justify-end">
+              <button
+                className="rounded-lg border border-[--color-border] bg-white px-4 py-2 font-semibold text-[--color-muted] hover:text-[--foreground]"
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingProduct(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded-lg border border-[--color-primary] bg-[--color-primary] px-4 py-2 text-black font-semibold shadow hover:bg-[--color-primary-strong] disabled:opacity-60"
+                onClick={handleUpdate}
+                disabled={loading}
+              >
+                {loading ? "Updating..." : "Update Product"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

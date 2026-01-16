@@ -15,6 +15,7 @@ const CATEGORY_OPTIONS: { label: string; value: Category | "ALL" }[] = [
   { label: "Lens Water", value: "LENS_WATER" },
   { label: "Accessory", value: "ACCESSORY" },
   { label: "Sunglass", value: "SUNGLASS" },
+  { label: "Eye Testing", value: "EYE_TESTING" },
 ];
 
 export default function POSPage() {
@@ -119,7 +120,7 @@ export default function POSPage() {
 
         setInvoiceData({
           store: {
-            name: "Ali Optical POS",
+            name: "Ali Optical",
             tagline: "Frames • Lenses • Hearing Aids • Sun-Glasses",
             address: "Tariq Road, Jacobabad, Sindh",
             phone: "+92 315 6018500",

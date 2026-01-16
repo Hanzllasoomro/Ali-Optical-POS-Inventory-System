@@ -107,7 +107,7 @@ export default function POSCart({
                 <button
                   onClick={() => updateQty(item._id, item.qty + 1)}
                   disabled={item.qty >= item.stockQty}
-                  className="h-8 w-8 rounded-full bg-[--color-primary] text-white text-lg font-semibold disabled:opacity-40"
+                  className="h-8 w-8 rounded-full bg-[--background] text-lg font-semibold text-[--foreground] disabled:opacity-40"
                   aria-label="Increase quantity"
                 >
                   +

@@ -61,9 +61,6 @@ export default function Invoice({ invoice }: Props) {
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-900 text-white text-sm font-semibold">
             AO
           </div>
-          <p className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-            Ali Optical
-          </p>
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
             {invoice.store.name}
           </h1>

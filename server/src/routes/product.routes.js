@@ -3,6 +3,7 @@ import { authenticate } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/rbac.middleware.js";
 import {
   createProduct,
+  updateProduct,
   listProducts,
   adjustStock,
 } from "../controllers/product.controller.js";
@@ -21,6 +22,13 @@ router.get(
   authenticate,
   authorize("ADMIN", "STAFF"),
   listProducts
+);
+
+router.put(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  updateProduct
 );
 
 router.patch(
