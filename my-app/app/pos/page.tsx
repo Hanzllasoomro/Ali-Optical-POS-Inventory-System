@@ -30,7 +30,6 @@ export default function POSPage() {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [customerName, setCustomerName] = useState("walk-in");
-  const [color, setColor] = useState("");
   const [paidAmount, setPaidAmount] = useState(0);
 
   const subtotal = useMemo(
@@ -91,7 +90,6 @@ export default function POSPage() {
 
       const orderPayload = {
         customerName,
-        color,
         deliveryDate: new Date().toISOString().slice(0, 10),
         discount,
         paidAmount: safePaid,
@@ -129,7 +127,7 @@ export default function POSPage() {
             number: res.data.orderNumber,
             date: (res.data.orderDate || new Date().toISOString()).slice(0, 10),
             deliveryDate: res.data.deliveryDate || res.data.orderDate?.slice(0, 10) || new Date().toISOString().slice(0, 10),
-            color: res.data.color || color || "N/A",
+            
           },
           payment: {
             subtotal: res.data.subtotal ?? subtotal,
@@ -143,7 +141,6 @@ export default function POSPage() {
 
       setCartItems([]);
       setDiscount(0);
-      setColor("");
       setPaidAmount(0);
     } catch (error: any) {
       const message = error?.response?.data?.message || "Checkout failed. Please try again.";
@@ -283,15 +280,7 @@ export default function POSPage() {
                     className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2 text-[--foreground] outline-none"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-[--foreground]">Color</label>
-                  <input
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    placeholder="e.g., Black"
-                    className="w-full rounded-lg border border-[--color-border] bg-white px-3 py-2 text-[--foreground] outline-none"
-                  />
-                </div>
+                
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-[--foreground]">Amount paid</label>
                   <input

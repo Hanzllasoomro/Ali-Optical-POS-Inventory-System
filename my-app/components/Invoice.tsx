@@ -18,7 +18,6 @@ type InvoiceType = {
     number: string;
     date: string;
     deliveryDate: string;
-    color: string;
   };
   payment: {
     subtotal: number;
@@ -58,15 +57,13 @@ export default function Invoice({ invoice }: Props) {
         </button>
 
         <div className="border-b border-dashed border-zinc-300 p-4 text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-900 text-white text-sm font-semibold">
-            AO
-          </div>
-          <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-zinc-900">
             {invoice.store.name}
           </h1>
-          <p className="text-xs text-zinc-600">{invoice.store.tagline}</p>
-          <p className="text-xs text-zinc-500">{invoice.store.address}</p>
-          <p className="text-xs text-zinc-500">Ph: {invoice.store.phone}</p>
+          <p className="text-xs text-zinc-1800">{invoice.store.tagline}</p>
+          <p className="text-xs text-zinc-1500">{invoice.store.address}</p>
+          <p className="text-xs text-zinc-1500">Ph: {invoice.store.phone}</p>
+          <p className="text-xs text-zinc-1500"> tel: 0722 653994</p>
         </div>
 
         <div className="border-b border-dashed border-zinc-300 px-4 py-3">
@@ -74,20 +71,15 @@ export default function Invoice({ invoice }: Props) {
             <span className="font-semibold">Order</span>
             <span>{invoice.order.number}</span>
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-zinc-700">
-            <span>Color:</span>
-            <span className="text-right font-semibold">{invoice.order.color}</span>
+          <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-zinc-1500">
             <span>Order Date:</span>
             <span className="text-right">{invoice.order.date}</span>
-            <span>Delivery:</span>
-            <span className="text-right">{invoice.order.deliveryDate}</span>
           </div>
         </div>
 
         <div className="border-b border-dashed border-zinc-300 px-4 py-3">
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
-            <span className="w-24">Item</span>
-            <span className="w-12 text-center">Color</span>
+            <span className="w-40">Item</span>
             <span className="w-10 text-center">Qty</span>
             <span className="w-16 text-right">Price</span>
             <span className="w-20 text-right">Total</span>
@@ -112,9 +104,6 @@ export default function Invoice({ invoice }: Props) {
                         </p>
                       ) : null}
                     </div>
-                    <span className="w-12 text-center text-sm">
-                      {invoice.order.color || "-"}
-                    </span>
                     <span className="w-10 text-center text-sm">{item.qty}</span>
                     <span className="w-16 text-right text-sm">
                       {formatAmount(item.price, invoice.payment.currency)}
@@ -146,7 +135,7 @@ export default function Invoice({ invoice }: Props) {
             <span>Total</span>
             <span>{formatAmount(total, invoice.payment.currency)}</span>
           </div>
-          <div className="mt-1 flex justify-between text-sm text-zinc-700">
+          <div className="mt-1 flex justify-between text-sm text-zinc-1800">
             <span>Paid</span>
             <span>{formatAmount(invoice.payment.paid, invoice.payment.currency)}</span>
           </div>
@@ -156,10 +145,9 @@ export default function Invoice({ invoice }: Props) {
           </div>
         </div>
 
-        <div className="px-4 py-3 text-center text-[11px] text-zinc-600">
+        <div className="px-4 py-3 text-center text-[11px] text-zinc-1800">
           <p>Thank you for choosing Ali Optical.</p>
-          <p className="mt-1">Return/exchange within 7 days with receipt.</p>
-          <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+          <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-zinc-1800">
             Designed by hanzllasoomro.site
           </p>
         </div>

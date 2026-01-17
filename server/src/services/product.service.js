@@ -35,7 +35,7 @@ export const updateStock = async (productId, qtyChange) => {
 
 export const getProducts = async (query) => {
   const page = Number(query.page) || 1;
-  const limit = Number(query.limit) || 20;
+  const limit = Number(query.limit) || 1000;
 
   return productRepo.listProducts({
     page,

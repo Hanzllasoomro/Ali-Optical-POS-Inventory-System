@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../../services/api";
 
 type Product = {
@@ -16,6 +16,9 @@ type Product = {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<"ALL" | string>("ALL");
+  const [loadingProducts, setLoadingProducts] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
     sku: "",
@@ -25,6 +28,43 @@ export default function ProductsPage() {
     stockQty: 0,
     reorderLevel: 5,
   });
+
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    const res = await api.get("/products");
+    setProducts(res.data);
+    setLoadingProducts(false);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const CATEGORY_OPTIONS = [
+    { label: "All", value: "ALL" },
+    { label: "Frame", value: "FRAME" },
+    { label: "Lens", value: "LENS" },
+    { label: "Glasses", value: "GLASSES" },
+    { label: "Hearing Aid", value: "HEARING_AID" },
+    { label: "Lens Water", value: "LENS_WATER" },
+    { label: "Accessory", value: "ACCESSORY" },
+    { label: "Sunglass", value: "SUNGLASS" },
+    { label: "Eye Testing", value: "EYE_TESTING" },
+  ];
+
+  const filteredProducts = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return products.filter((p) => {
+      const matchesSearch = !term || p.name.toLowerCase().includes(term) || p.sku?.toLowerCase().includes(term);
+      const matchesCategory = selectedCategory === "ALL" || p.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, search, selectedCategory]);
 
   const handleCategoryChange = (category: string) => {
     const updates: any = { category };
@@ -44,19 +84,6 @@ export default function ProductsPage() {
     }
     setEditingProduct({ ...editingProduct, ...updates });
   };
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const fetchProducts = async () => {
-    const res = await api.get("/products");
-    setProducts(res.data);
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const handleAdd = async () => {
     setError(null);
@@ -261,28 +288,65 @@ export default function ProductsPage() {
         </button>
       </div>
 
-      <div className="bg-white shadow rounded-2xl border border-[--color-border] p-4 space-y-3">
-        {products.map((p) => (
-          <div key={p._id} className="flex justify-between items-start border-b border-[--color-border] pb-3 last:border-none last:pb-0">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-[--foreground]">{p.name}</h3>
-                <span className="rounded-full bg-[--color-primary]/10 text-[--color-primary-strong] px-2 py-0.5 text-xs font-semibold">{p.sku}</span>
-              </div>
-              <p className="text-sm text-[--color-muted]">Category: {p.category}</p>
-              <p className="text-sm text-[--color-muted]">Cost: {p.costPrice} · Price: {p.sellingPrice}</p>
-              <p className="text-xs text-[--color-muted]">Stock: {p.stockQty} | Reorder at {p.reorderLevel ?? 5}</p>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => handleEdit(p)} className="text-[--color-primary] text-sm font-semibold hover:text-[--color-primary-strong]">
-                Edit
-              </button>
-              <button onClick={() => handleDelete(p._id)} className="text-red-500 text-sm font-semibold hover:text-red-600">
-                Delete
-              </button>
-            </div>
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 flex items-center gap-2 rounded-xl border border-[--color-border] bg-white px-3 py-2 shadow-sm">
+            <span className="text-[--color-muted] text-sm">Search</span>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products by name or SKU..."
+              className="flex-1 bg-transparent outline-none text-[--foreground]"
+            />
           </div>
-        ))}
+          <div className="flex items-center gap-2 text-sm text-[--color-muted]">
+            <span className="h-2 w-2 rounded-full bg-[--color-primary]"></span>
+            {loadingProducts ? "Loading products..." : `${filteredProducts.length} items`}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 overflow-x-auto rounded-xl border border-[--color-border] bg-white p-2 shadow-sm">
+          {CATEGORY_OPTIONS.map((option) => {
+            const isActive = option.value === selectedCategory;
+            return (
+              <button
+                key={option.value}
+                onClick={() => setSelectedCategory(option.value)}
+                className={`rounded-lg px-3 py-1 text-sm font-semibold transition border ${
+                  isActive
+                    ? "bg-[--color-primary]/10 text-[--color-primary-strong] border-[--color-primary]"
+                    : "bg-white text-[--foreground] border-[--color-border] hover:bg-[--color-border]/50"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="bg-white shadow rounded-2xl border border-[--color-border] p-4 space-y-3">
+          {filteredProducts.map((p) => (
+            <div key={p._id} className="flex justify-between items-start border-b border-[--color-border] pb-3 last:border-none last:pb-0">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-[--foreground]">{p.name}</h3>
+                  <span className="rounded-full bg-[--color-primary]/10 text-[--color-primary-strong] px-2 py-0.5 text-xs font-semibold">{p.sku}</span>
+                </div>
+                <p className="text-sm text-[--color-muted]">Category: {p.category}</p>
+                <p className="text-sm text-[--color-muted]">Cost: {p.costPrice} · Price: {p.sellingPrice}</p>
+                <p className="text-xs text-[--color-muted]">Stock: {p.stockQty} | Reorder at {p.reorderLevel ?? 5}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => handleEdit(p)} className="text-[--color-primary] text-sm font-semibold hover:text-[--color-primary-strong]">
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(p._id)} className="text-red-500 text-sm font-semibold hover:text-red-600">
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Edit Product Modal */}
